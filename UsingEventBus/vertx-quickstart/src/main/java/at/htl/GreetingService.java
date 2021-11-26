@@ -2,6 +2,7 @@ package at.htl;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.eventbus.Message;
 import org.eclipse.microprofile.context.ManagedExecutor;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,8 +19,9 @@ public class GreetingService {
     ManagedExecutor executor;
 
     @ConsumeEvent("greeting")
-    public String consume(String name) {
-        return name.toUpperCase();
+    public void consume(Message<String> msg) {
+        System.out.println(msg.address());
+        System.out.println(msg.body());
     }
 
     @ConsumeEvent("greeting")
