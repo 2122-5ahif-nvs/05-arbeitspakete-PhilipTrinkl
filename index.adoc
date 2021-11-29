@@ -7,6 +7,7 @@
 
 === Chat Socket Class
 ==== Annotations
+[source,java]
 ----
 @ServerEndpoint("/chat/{username}")
 @ApplicationScoped
@@ -17,6 +18,7 @@ public class ChatSocket {
 The Map stores the currently opened websockets
 
 ==== Example Method
+[source,java]
 ----
 @OnOpen
 public void onOpen(Session session, @PathParam("username") String username)
@@ -26,3 +28,42 @@ public void onOpen(Session session, @PathParam("username") String username)
 ----
 
 == Using Event Bus
+
+=== Extensions
+----
+./mvnw quarkus:add-extension -Dextensions="vertx,resteasy-mutiny"
+----
+
+=== Example Resource
+[source,java]
+----
+@Path("/async")
+public class EventResource {
+
+    @Inject
+    EventBus bus;
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("{name}")
+    public Uni<String> greeting(@PathParam String name) {
+        return bus.<String>request("greeting", name)
+                .onItem().transform(Message::body);
+    }
+}
+----
+If you call this endpoint you will wait and get a timout because no one is listening. So we need a listener.
+
+=== Example Service
+[source,java]
+----
+@ApplicationScoped
+public class GreetingService {
+
+    @ConsumeEvent("greeting")
+    public String greeting(String name) {
+        return "Hello " + name;
+    }
+
+}
+----
