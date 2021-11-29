@@ -1,0 +1,28 @@
+== Using Websockets
+
+=== Extensions
+----
+./mvnw quarkus:add-extension -Dextensions="websockets"
+----
+
+=== Chat Socket Class
+==== Annotations
+----
+@ServerEndpoint("/chat/{username}")
+@ApplicationScoped
+public class ChatSocket {
+    Map<String, Session> sessions = new ConcurrentHashMap<>();
+}
+----
+The Map stores the currently opened websockets
+
+==== Example Method
+----
+@OnOpen
+public void onOpen(Session session, @PathParam("username") String username)
+{
+    sessions.put(username, session);
+}
+----
+
+== Using Event Bus
